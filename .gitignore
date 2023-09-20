@@ -1,0 +1,9 @@
+*.suo
+*.user
+.vs/
+Interfaces/obj
+Interfaces/bin
+Client/obj
+Client/bin
+Server/obj
+Server/bin
