@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSignalR();
 builder.Services.AddHostedService<Worker>();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
 
