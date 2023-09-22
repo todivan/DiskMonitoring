@@ -9,7 +9,7 @@ public static class Config
 
     public static class Events
     {
-        public static string VolumesSent => nameof(IVolumes.ShowVolumes);
+        public static string VolumesSent => nameof(IVolumes.ShowResults);
     }
 }
 

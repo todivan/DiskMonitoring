@@ -1,6 +1,8 @@
-﻿namespace Interfaces;
+﻿using Interfaces.Model;
+
+namespace Interfaces;
 
 public interface IVolumes
 {
-    Task ShowVolumes(IEnumerable<string> volumes);
+    Task ShowResults(IEnumerable<VolumeDisksReport> results);
 }

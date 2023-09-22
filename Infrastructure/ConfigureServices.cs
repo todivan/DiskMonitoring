@@ -8,8 +8,7 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        //services.AddSingleton<IVolumesScanner, VolumesScanner>();
-        services.AddSingleton<IVolumesScanner, VolumesScanner2>();
+        services.AddSingleton<IVolumesScanner, VolumesScanner>();
 
         return services;
     }

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.SignalR.Client;
+using Interfaces.Model;
 
 namespace Server
 {
@@ -18,12 +19,15 @@ namespace Server
             .WithUrl(Config.HubUrl)
                 .Build();
 
-            _connection.On<IEnumerable<string>>(Config.Events.VolumesSent, ShowVolumes);
+            _connection.On<IEnumerable<VolumeDisksReport>>(Config.Events.VolumesSent, ShowResults);
         }
 
-        public Task ShowVolumes(IEnumerable<string> volumes)
+        public Task ShowResults(IEnumerable<VolumeDisksReport> reports)
         {
-            _logger.LogInformation("{Volumes}", volumes.First());
+            foreach (var report in reports)
+            {
+                _logger.LogInformation("{Volumes}", report.volume);
+            }
 
             return Task.CompletedTask;
         }

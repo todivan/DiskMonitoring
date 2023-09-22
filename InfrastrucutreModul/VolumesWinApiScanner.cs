@@ -1,5 +1,6 @@
 ﻿
-using Interfaces;
+
+using InfrastrucutreModul.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -10,16 +11,16 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace Infrastructure
+namespace InfrastrucutreModul
 {
-    internal class VolumesScanner : IVolumesScanner
+    public class VolumesWinApiScanner
     {
-        public List<string> GetVolumes()
+        public List<VolumesWinApiResults> GetVolumes()
         {
-            var volumes = new List<string>();
+            var volumes = new List<VolumesWinApiResults>();
 
             char[] volumeName = new char[256];
-            IntPtr findHandle = NativeMethods.FindFirstVolume(volumeName, (uint)volumeName.Length);
+            var findHandle = NativeMethods.FindFirstVolume(volumeName, (uint)volumeName.Length);
 
             if (findHandle == IntPtr.Zero)
             {
@@ -30,11 +31,12 @@ namespace Infrastructure
 
             do
             {
-                Console.WriteLine("Volume Name: " + new string(volumeName));
+                var volumeNameStr = new string(volumeName);
+                Console.WriteLine("Volume Name: " + volumeNameStr);
 
-                volumes.Add(new string(volumeName));
+                volumes.Add(new VolumesWinApiResults() { VolumeId = volumeNameStr.Replace("\0", "") });
 
-                IntPtr volumeHandle = NativeMethods.CreateFile(new string(volumeName), 0, 0, IntPtr.Zero, 0, 0, IntPtr.Zero);
+                var volumeHandle = NativeMethods.CreateFile(new string(volumeName), 0, 0, IntPtr.Zero, 0, 0, IntPtr.Zero);
                 if (volumeHandle == IntPtr.Zero)
                 {
                     int error = Marshal.GetLastWin32Error();

@@ -6,57 +6,40 @@ namespace Infrastructure;
 
 internal class NativeMethods
 {
-    internal const UInt32 IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS = 0x00560000;
+    public const uint IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS = 0x00056000;
 
     [StructLayout(LayoutKind.Sequential)]
-    internal class DISK_EXTENT
+    public struct VOLUME_DISK_EXTENTS
     {
-        public UInt32 DiskNumber;
-        public Int64 StartingOffset;
-        public Int64 ExtentLength;
+        public uint NumberOfDiskExtents;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1)]
+        public DISK_EXTENT[] Extents;
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal class VOLUME_DISK_EXTENTS
+    public struct DISK_EXTENT
     {
-        public UInt32 NumberOfDiskExtents;
-        public DISK_EXTENT Extents;
+        public uint DiskNumber;
+        public long StartingOffset;
+        public long ExtentLength;
     }
 
-    [DllImport("kernel32", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    internal static extern bool DeviceIoControl(SafeFileHandle hDevice,
-                                                UInt32 ioControlCode,
-                                                IntPtr inBuffer,
-                                                UInt32 inBufferSize,
-                                                IntPtr outBuffer,
-                                                UInt32 outBufferSize,
-                                                out UInt32 bytesReturned,
-                                                IntPtr overlapped);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern IntPtr FindFirstVolume([Out] char[] lpszVolumeName, uint cchBufferLength);
 
-    //[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    //internal static extern SafeFileHandle CreateFile(string lpFileName,
-    //                int dwDesiredAccess,
-    //                int dwShareMode,
-    //                IntPtr lpSecurityAttributes,
-    //                uint dwCreationDisposition,
-    //                uint dwFlagsAndAttributes,
-    //                SafeFileHandle hTemplateFile);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern bool FindNextVolume(IntPtr hFindVolume, [Out] char[] lpszVolumeName, uint cchBufferLength);
 
-    internal const int GENERIC_READ = unchecked((int)0x80000000);
-    internal const uint GENERIC_ALL = unchecked((uint)0x10000000);
-    internal const uint OPEN_EXISTING = 3;
-    internal const uint FILE_ATTRIBUTE_NORMAL = 0x80;
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern bool FindVolumeClose(IntPtr hFindVolume);
 
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern bool DeviceIoControl(IntPtr hDevice, uint dwIoControlCode, IntPtr lpInBuffer, uint nInBufferSize, ref VOLUME_DISK_EXTENTS lpOutBuffer, uint nOutBufferSize, out uint lpBytesReturned, IntPtr lpOverlapped);
 
-    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    public static extern SafeFileHandle CreateFile(
- [MarshalAs(UnmanagedType.LPTStr)] string filename,
- [MarshalAs(UnmanagedType.U4)] FileAccess access,
- [MarshalAs(UnmanagedType.U4)] FileShare share,
- IntPtr securityAttributes, // optional SECURITY_ATTRIBUTES struct or IntPtr.Zero
- [MarshalAs(UnmanagedType.U4)] FileMode creationDisposition,
- [MarshalAs(UnmanagedType.U4)] FileAttributes flagsAndAttributes,
- IntPtr templateFile);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern IntPtr CreateFile(string lpFileName, uint dwDesiredAccess, uint dwShareMode, IntPtr lpSecurityAttributes, uint dwCreationDisposition, uint dwFlagsAndAttributes, IntPtr hTemplateFile);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern bool CloseHandle(IntPtr hObject);
 }
 
