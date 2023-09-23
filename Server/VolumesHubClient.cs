@@ -26,7 +26,9 @@ namespace Server
         {
             foreach (var report in reports)
             {
-                _logger.LogInformation("{Volumes}", report.volume);
+                _logger.LogInformation($"VolumeId:{report.VolumeId}, DriveLetter:{report.DriveLetter}, DiskId:{report.DiskId}, " +
+                    $"DiskDescription:{report.DiskDescription}, DiskSize:{report.DiskSize}, PartitionSize:{report.PartitionSize}, " +
+                    $"StartingOffset:{report.StartingOffset}, BlockSize:{report.BlockSize}");
             }
 
             return Task.CompletedTask;

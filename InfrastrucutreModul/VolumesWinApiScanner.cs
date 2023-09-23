@@ -25,22 +25,19 @@ namespace InfrastrucutreModul
             if (findHandle == IntPtr.Zero)
             {
                 int error = Marshal.GetLastWin32Error();
-                Console.WriteLine("FindFirstVolume error: " + error);
                 return volumes;
             }
 
             do
             {
                 var volumeNameStr = new string(volumeName);
-                Console.WriteLine("Volume Name: " + volumeNameStr);
 
-                volumes.Add(new VolumesWinApiResults() { VolumeId = volumeNameStr.Replace("\0", "") });
+                var volumesWinApiResults = new VolumesWinApiResults() { VolumeId = volumeNameStr.Replace("\0", "") };
 
                 var volumeHandle = NativeMethods.CreateFile(new string(volumeName), 0, 0, IntPtr.Zero, 0, 0, IntPtr.Zero);
                 if (volumeHandle == IntPtr.Zero)
                 {
                     int error = Marshal.GetLastWin32Error();
-                    Console.WriteLine("CreateFile error: " + error);
                     return volumes;
                 }
 
@@ -54,9 +51,9 @@ namespace InfrastrucutreModul
                     Console.WriteLine("Number of Disk Extents: " + volumeExtents.NumberOfDiskExtents);
                     foreach (var extent in volumeExtents.Extents)
                     {
-                        Console.WriteLine("Disk Number: " + extent.DiskNumber);
-                        Console.WriteLine("Starting Offset: " + extent.StartingOffset);
-                        Console.WriteLine("Extent Length: " + extent.ExtentLength);
+                        volumesWinApiResults.DiskNumber = extent.DiskNumber;
+                        volumesWinApiResults.StartingOffset = extent.StartingOffset;
+                        volumesWinApiResults.ExtentLength = extent.ExtentLength;
                     }
                 }
                 else
@@ -64,6 +61,8 @@ namespace InfrastrucutreModul
                     int error = Marshal.GetLastWin32Error();
                     Console.WriteLine("DeviceIoControl error: " + error);
                 }
+
+                volumes.Add(volumesWinApiResults);
 
                 NativeMethods.CloseHandle(volumeHandle);
 

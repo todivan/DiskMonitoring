@@ -2,6 +2,7 @@
 using InfrastrucutreModul.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Management;
 using System.Management.Automation.Host;
 using System.Management.Automation.Runspaces;
@@ -22,22 +23,31 @@ namespace InfrastrucutreModul
                 UInt64 startingOffset = (UInt64)(mo["StartingOffset"] ?? 0);
                 UInt64 partitionSize = (UInt64)(mo["Size"] ?? 0);
 
-                var moCollection = mo.GetRelated("Win32_DiskDrive");
+                var moDiskDrive = mo.GetRelated("Win32_DiskDrive");
+                var moLogicalDisk = mo.GetRelated("Win32_LogicalDisk");
 
-                foreach (var moItem in moCollection)
+                foreach (var moItem in moDiskDrive)
                 {
                     var deviceID = moItem["DeviceID"]?.ToString();
                     var description = moItem["Description"]?.ToString();
                     UInt64 diskSize = (UInt64)(moItem["Size"] ?? 0);
 
+                    string driveLetter = string.Empty;
+                    var logicalDIsk = moLogicalDisk.OfType<ManagementObject>().FirstOrDefault();
+                    if (logicalDIsk != null)
+                    {
+                        driveLetter = logicalDIsk["DeviceId"]?.ToString();
+                    }
+
                     result.Add(new DiskPartitionWmiResults()
                     {
                         BlockSize = blockSize,
-                        DeviceID = deviceID,
+                        DriveLetter = driveLetter,
+                        DiskId = deviceID,
                         DiskDescription = description,
                         DiskSize = diskSize,
                         PartitionSize = partitionSize,
-                        StartingOffset = startingOffset
+                        StartingOffset = startingOffset,
                     });
                 }
             }
