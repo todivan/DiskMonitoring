@@ -4,12 +4,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.VisualBasic;
-using Interfaces;
 
 var host = Host.CreateDefaultBuilder(args)
-    .ConfigureLogging(logging =>
+    .ConfigureLogging((ctx, builder) =>
     {
-        logging.AddConsole();
+        builder.AddConsole();
+        builder.AddConfiguration(ctx.Configuration.GetSection("Logging"));
+        builder.AddFile(o => o.RootPath = ctx.HostingEnvironment.ContentRootPath);
     })
     .ConfigureServices(services =>
     {

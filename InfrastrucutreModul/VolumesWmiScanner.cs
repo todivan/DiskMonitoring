@@ -1,20 +1,20 @@
 ﻿
-using InfrastrucutreModul.Models;
+using Common.Interfaces;
+using Common.Model;
 using System.Collections.Generic;
 using System.Management;
 
 namespace InfrastrucutreModul
 {
 
-    public class VolumesWmiScanner
+    public class VolumesWmiScanner : IVolumesWmiScanner
     {
         public IEnumerable<VolumesWmiResults> GetVolumes()
         {
             var result = new List<VolumesWmiResults>();
 
             ManagementObjectSearcher ms = new ManagementObjectSearcher("Select DeviceID, DriveLetter from Win32_Volume");
-            var moCollection = ms.Get();
-            foreach (ManagementObject mo in moCollection)
+            foreach (ManagementObject mo in ms.Get())
             {
                 var id = mo["DeviceID"]?.ToString();
                 var letter = mo["DriveLetter"]?.ToString();

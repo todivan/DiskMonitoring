@@ -1,5 +1,4 @@
-using Interfaces;
-using Interfaces.Model;
+using Common.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Client

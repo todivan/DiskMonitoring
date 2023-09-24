@@ -1,8 +1,9 @@
-﻿using Interfaces;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.SignalR.Client;
-using Interfaces.Model;
+using Common.Interfaces;
+using Common.Model;
+using Common;
 
 namespace Server
 {
@@ -46,7 +47,7 @@ namespace Server
                 }
                 catch
                 {
-                    await Task.Delay(1000, cancellationToken);
+                    await Task.Delay(5000, cancellationToken);
                 }
             }
         }

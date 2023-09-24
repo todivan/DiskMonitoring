@@ -1,16 +1,15 @@
 ﻿
-using InfrastrucutreModul.Models;
+using Common.Interfaces;
+using Common.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
-using System.Management.Automation.Host;
-using System.Management.Automation.Runspaces;
 
 namespace InfrastrucutreModul
 {
 
-    public class DiskPartitioWmiScanner
+    public class DiskPartitionWmiScanner : IDiskPartitionWmiScanner
     {
         public IEnumerable<DiskPartitionWmiResults> GetDiskPartitions()
         {

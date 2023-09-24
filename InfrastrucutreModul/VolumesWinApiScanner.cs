@@ -1,21 +1,18 @@
 ﻿
 
-using InfrastrucutreModul.Models;
+using Common.Interfaces;
+using Common.Model;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
+
 
 
 namespace InfrastrucutreModul
 {
-    public class VolumesWinApiScanner
+    public class VolumesWinApiScanner : IVolumesWinApiScanner
     {
-        public List<VolumesWinApiResults> GetVolumes()
+        public IEnumerable<VolumesWinApiResults> GetVolumes()
         {
             var volumes = new List<VolumesWinApiResults>();
 
@@ -30,11 +27,11 @@ namespace InfrastrucutreModul
 
             do
             {
-                var volumeNameStr = new string(volumeName);
+                var volumeNameStr = (new string(volumeName)).Replace("\0", "");
 
-                var volumesWinApiResults = new VolumesWinApiResults() { VolumeId = volumeNameStr.Replace("\0", "") };
+                var volumesWinApiResults = new VolumesWinApiResults() { VolumeId = volumeNameStr };
 
-                var volumeHandle = NativeMethods.CreateFile(new string(volumeName), 0, 0, IntPtr.Zero, 0, 0, IntPtr.Zero);
+                var volumeHandle = NativeMethods.CreateFile(volumeNameStr, 0, 0, IntPtr.Zero, 0, 0, IntPtr.Zero);
                 if (volumeHandle == IntPtr.Zero)
                 {
                     int error = Marshal.GetLastWin32Error();
@@ -59,7 +56,7 @@ namespace InfrastrucutreModul
                 else
                 {
                     int error = Marshal.GetLastWin32Error();
-                    Console.WriteLine("DeviceIoControl error: " + error);
+                    //Console.WriteLine("DeviceIoControl error: " + error);// TODO: here is Error 6: Invalid Handle
                 }
 
                 volumes.Add(volumesWinApiResults);

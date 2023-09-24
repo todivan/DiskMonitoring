@@ -1,5 +1,5 @@
 ﻿
-namespace InfrastrucutreModul.Models
+namespace Common.Model
 {
     public class VolumesWinApiResults
     {

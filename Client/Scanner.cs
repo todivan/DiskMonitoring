@@ -1,19 +1,16 @@
 ﻿
-using InfrastrucutreModul;
-using InfrastrucutreModul.Models;
-using Interfaces;
-using Interfaces.Model;
-using System.Runtime.InteropServices;
+using Common.Interfaces;
+using Common.Model;
 
 namespace Client;
 
 internal class Scanner : IScanner
 {
-    private readonly VolumesWinApiScanner _volumesWinApiScanner;
-    private readonly VolumesWmiScanner _volumesWmiScanner;
-    private readonly DiskPartitioWmiScanner _diskPartitioWmiScanner;
+    private readonly IVolumesWinApiScanner _volumesWinApiScanner;
+    private readonly IVolumesWmiScanner _volumesWmiScanner;
+    private readonly IDiskPartitionWmiScanner _diskPartitioWmiScanner;
 
-    public Scanner(VolumesWinApiScanner volumesWinApiScanner, VolumesWmiScanner volumesWmiScanner, DiskPartitioWmiScanner diskPartitioWmiScanner)
+    public Scanner(IVolumesWinApiScanner volumesWinApiScanner, IVolumesWmiScanner volumesWmiScanner, IDiskPartitionWmiScanner diskPartitioWmiScanner)
     {
         _volumesWinApiScanner = volumesWinApiScanner;
         _volumesWmiScanner = volumesWmiScanner;
@@ -33,7 +30,7 @@ internal class Scanner : IScanner
         return results;
     }
 
-    private IEnumerable<VolumeDisksReport> CrateResults(List<VolumesWinApiResults> winApiVolumes, 
+    private IEnumerable<VolumeDisksReport> CrateResults(IEnumerable<VolumesWinApiResults> winApiVolumes, 
         IEnumerable<VolumesWmiResults> wmiVolumes, 
         IEnumerable<DiskPartitionWmiResults> diskPartitions)
     {

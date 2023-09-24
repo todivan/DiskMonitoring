@@ -1,5 +1,5 @@
 ﻿
-namespace InfrastrucutreModul.Models
+namespace Common.Model
 {
     public sealed class VolumesWmiResults
     {
