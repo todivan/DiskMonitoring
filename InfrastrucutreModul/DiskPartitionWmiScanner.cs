@@ -9,14 +9,14 @@ using System.Management;
 namespace InfrastrucutreModul
 {
 
-    public class DiskPartitionWmiScanner : IDiskPartitionWmiScanner
+    public class DiskPartitionWmiScanner : WmiScannerBase, IDiskPartitionWmiScanner
     {
         public IEnumerable<DiskPartitionWmiResults> GetDiskPartitions()
         {
             var result = new List<DiskPartitionWmiResults>();
 
-            ManagementObjectSearcher ms = new ManagementObjectSearcher("Select * from Win32_DiskPartition");
-            foreach (ManagementObject mo in ms.Get())
+            var moCollection = ExecuteCommand("Select * from Win32_DiskPartition");
+            foreach (ManagementObject mo in moCollection)
             {
                 UInt64 blockSize = (UInt64)(mo["BlockSize"] ?? 0);
                 UInt64 startingOffset = (UInt64)(mo["StartingOffset"] ?? 0);

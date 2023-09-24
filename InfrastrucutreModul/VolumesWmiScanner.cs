@@ -7,14 +7,14 @@ using System.Management;
 namespace InfrastrucutreModul
 {
 
-    public class VolumesWmiScanner : IVolumesWmiScanner
+    public class VolumesWmiScanner : WmiScannerBase, IVolumesWmiScanner
     {
         public IEnumerable<VolumesWmiResults> GetVolumes()
         {
             var result = new List<VolumesWmiResults>();
 
-            ManagementObjectSearcher ms = new ManagementObjectSearcher("Select DeviceID, DriveLetter from Win32_Volume");
-            foreach (ManagementObject mo in ms.Get())
+            var moCollection = ExecuteCommand("Select DeviceID, DriveLetter from Win32_Volume");
+            foreach (ManagementObject mo in moCollection)
             {
                 var id = mo["DeviceID"]?.ToString();
                 var letter = mo["DriveLetter"]?.ToString();

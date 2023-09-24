@@ -5,6 +5,10 @@ Client/obj
 Client/bin
 Server/obj
 Server/bin
+Tests/Client.Tests/obj
+Tests/Client.Tests/bin
+Tests/Server.Tests/obj
+Tests/Server.Tests/bin
 Common/obj
 Common/bin
 InfrastrucutreModul/obj

@@ -5,56 +5,55 @@ using Common.Interfaces;
 using Common.Model;
 using Common;
 
-namespace Server
+namespace Server;
+
+public class VolumesHubClient : IVolumes, IHostedService
 {
-    internal class VolumesHubClient : IVolumes, IHostedService
+    private readonly ILogger<VolumesHubClient> _logger;
+    private HubConnection _connection;
+
+    public VolumesHubClient(ILogger<VolumesHubClient> logger)
     {
-        private readonly ILogger<VolumesHubClient> _logger;
-        private HubConnection _connection;
+        _logger = logger;
 
-        public VolumesHubClient(ILogger<VolumesHubClient> logger)
+        _connection = new HubConnectionBuilder()
+        .WithUrl(Config.HubUrl)
+            .Build();
+
+        _connection.On<IEnumerable<VolumeDisksReport>>(Config.Events.VolumesSent, ShowResults);
+    }
+
+    public Task ShowResults(IEnumerable<VolumeDisksReport> reports)
+    {
+        foreach (var report in reports)
         {
-            _logger = logger;
-
-            _connection = new HubConnectionBuilder()
-            .WithUrl(Config.HubUrl)
-                .Build();
-
-            _connection.On<IEnumerable<VolumeDisksReport>>(Config.Events.VolumesSent, ShowResults);
+            _logger.LogInformation($"VolumeId:{report.VolumeId}, DriveLetter:{report.DriveLetter}, DiskId:{report.DiskId}, " +
+                $"DiskDescription:{report.DiskDescription}, DiskSize:{report.DiskSize}, PartitionSize:{report.PartitionSize}, " +
+                $"StartingOffset:{report.StartingOffset}, BlockSize:{report.BlockSize}");
         }
 
-        public Task ShowResults(IEnumerable<VolumeDisksReport> reports)
+        return Task.CompletedTask;
+    }
+
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
+        while (true)
         {
-            foreach (var report in reports)
+            try
             {
-                _logger.LogInformation($"VolumeId:{report.VolumeId}, DriveLetter:{report.DriveLetter}, DiskId:{report.DiskId}, " +
-                    $"DiskDescription:{report.DiskDescription}, DiskSize:{report.DiskSize}, PartitionSize:{report.PartitionSize}, " +
-                    $"StartingOffset:{report.StartingOffset}, BlockSize:{report.BlockSize}");
+                await _connection.StartAsync(cancellationToken);
+
+                break;
             }
-
-            return Task.CompletedTask;
-        }
-
-        public async Task StartAsync(CancellationToken cancellationToken)
-        {
-            while (true)
+            catch
             {
-                try
-                {
-                    await _connection.StartAsync(cancellationToken);
-
-                    break;
-                }
-                catch
-                {
-                    await Task.Delay(5000, cancellationToken);
-                }
+                await Task.Delay(5000, cancellationToken);
             }
         }
+    }
 
-        public async Task StopAsync(CancellationToken cancellationToken)
-        {
-            await _connection.DisposeAsync();
-        }
+    public async Task StopAsync(CancellationToken cancellationToken)
+    {
+        await _connection.DisposeAsync();
     }
 }

@@ -4,14 +4,16 @@ using Common.Model;
 
 namespace Client;
 
-internal class Scanner : IScanner
+public class Scanner : IScanner
 {
+    private readonly ILogger<Scanner> _logger;
     private readonly IVolumesWinApiScanner _volumesWinApiScanner;
     private readonly IVolumesWmiScanner _volumesWmiScanner;
     private readonly IDiskPartitionWmiScanner _diskPartitioWmiScanner;
 
-    public Scanner(IVolumesWinApiScanner volumesWinApiScanner, IVolumesWmiScanner volumesWmiScanner, IDiskPartitionWmiScanner diskPartitioWmiScanner)
+    public Scanner(ILogger<Scanner> logger, IVolumesWinApiScanner volumesWinApiScanner, IVolumesWmiScanner volumesWmiScanner, IDiskPartitionWmiScanner diskPartitioWmiScanner)
     {
+        _logger = logger;
         _volumesWinApiScanner = volumesWinApiScanner;
         _volumesWmiScanner = volumesWmiScanner;
         _diskPartitioWmiScanner = diskPartitioWmiScanner;
@@ -19,13 +21,29 @@ internal class Scanner : IScanner
 
     public IEnumerable<VolumeDisksReport> Scan()
     {
-        var winApiVolumes = _volumesWinApiScanner.GetVolumes();
+        var winApiVolumes = ExecuteScanner<VolumesWinApiResults>(_volumesWinApiScanner.GetVolumes, "Failed to get volumes over WinApi");
 
-        var wmiVolumes = _volumesWmiScanner.GetVolumes();
+        var wmiVolumes = ExecuteScanner<VolumesWmiResults>(_volumesWmiScanner.GetVolumes, "Failed to get volumes over Wmi");
 
-        var diskPartitions = _diskPartitioWmiScanner.GetDiskPartitions();
+        var diskPartitions = ExecuteScanner<DiskPartitionWmiResults>(_diskPartitioWmiScanner.GetDiskPartitions, "Failed to get disk partitions over Wmi");
 
         IEnumerable<VolumeDisksReport> results = CrateResults(winApiVolumes, wmiVolumes, diskPartitions);
+
+        return results;
+    }
+
+    private IEnumerable<T> ExecuteScanner<T>(Func<IEnumerable<T>> action, string exceptionMethod)
+    {
+        IEnumerable<T> results = new List<T>();
+
+        try
+        {
+            results = action();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, exceptionMethod);
+        }
 
         return results;
     }
